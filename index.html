@@ -7,66 +7,97 @@
     <title>RJ45C</title>
     <style>
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box
         }
 
         body {
-            font-family: -apple-system, system-ui, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
             max-width: 900px;
             margin: 0 auto;
-            padding: 2rem 1rem;
-            line-height: 1.7
+            padding: 3rem 1rem;
+            line-height: 1.7;
+            background: #f9fafb;
+            color: #111827;
+        }
+
+        .title {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            font-weight: 700;
+            color: #111827;
         }
 
         .post-item {
-            border-bottom: 1px solid #eee;
-            padding: 1rem 0;
-            margin-bottom: 1rem
+            background: #fff;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #f0f0f0;
+            transition: all 0.2s ease;
+        }
+
+        .post-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+            border-color: #e0e0e0;
         }
 
         .post-item h2 {
             margin: 0 0 0.5rem;
-            font-size: 1.3rem
+            font-size: 1.3rem;
+            font-weight: 600;
         }
 
         .post-item a {
             color: #165DFF;
-            text-decoration: none
+            text-decoration: none;
         }
 
         .meta {
-            color: #666;
+            color: #6b7280;
             font-size: 14px;
-            margin-bottom: 0.5rem
+            margin-bottom: 0.5rem;
         }
 
         .tag {
             display: inline-block;
             background: #f4f5f7;
-            padding: 2px 8px;
-            border-radius: 4px;
+            padding: 3px 8px;
+            border-radius: 6px;
             margin-right: 6px;
-            font-size: 12px
+            font-size: 12px;
+            color: #4b5563;
         }
 
         .pagination {
             display: flex;
             gap: 1rem;
-            margin-top: 2rem;
+            margin-top: 2.5rem;
             align-items: center;
-            justify-content: center
+            justify-content: center;
         }
 
         .pagination button {
-            padding: 0.5rem 1rem;
+            padding: 0.6rem 1.2rem;
             border: 1px solid #ddd;
             background: #fff;
-            border-radius: 6px;
-            cursor: pointer
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: #165DFF;
+            color: #fff;
+            border-color: #165DFF;
         }
 
         .pagination button:disabled {
-            opacity: 0.4
+            opacity: 0.4;
+            cursor: not-allowed;
         }
 
         .category {
@@ -74,25 +105,27 @@
             color: #165DFF;
             padding: 2px 8px;
             border-radius: 4px;
-            font-size: 13px
+            font-size: 13px;
         }
 
         .excerpt {
-            color: #333;
-            margin-top: 0.5rem
+            color: #374151;
+            margin-top: 0.5rem;
+            line-height: 1.7;
         }
 
         .empty {
             text-align: center;
-            color: #888;
-            padding: 3rem 0
+            color: #999;
+            padding: 3rem 0;
         }
     </style>
 </head>
 
 <body>
-    <h1>博客</h1>
+    <h1 class="title">RJ45C</h1>
     <div id="list"></div>
+
     <div class="pagination">
         <button id="prev">上一页</button>
         <span id="page-info"></span>
@@ -105,26 +138,25 @@
 
         const POSTS_PER_PAGE = 5
         let currentPage = 1
-        let allPosts = [...postsList]
+        let allPosts = []
 
-        async function loadFullPostData() {
-            const updated = []
-            for (const post of allPosts) {
+        async function loadPosts() {
+            const posts = []
+            for (const item of postsList) {
                 try {
-                    const res = await fetch(`/posts/${post.file}`)
+                    const res = await fetch(`/posts/${item.file}`)
+                    if (!res.ok) continue
                     const text = await res.text()
                     const { data } = parsePostFrontmatter(text)
-                    updated.push({ ...data, file: post.file })
-                } catch (e) {
-                    updated.push(post)
-                }
+                    posts.push({ ...data, file: item.file })
+                } catch (e) { }
             }
-            allPosts = updated.sort((a, b) => (b.date || '') > (a.date || '') ? 1 : -1)
+            allPosts = posts.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0))
             render()
         }
 
         function render() {
-            const total = Math.max(1, Math.ceil(allPosts.length / POSTS_PER_PAGE))
+            const total = Math.ceil(allPosts.length / POSTS_PER_PAGE) || 1
             const start = (currentPage - 1) * POSTS_PER_PAGE
             const pageData = allPosts.slice(start, start + POSTS_PER_PAGE)
 
@@ -152,7 +184,7 @@
         document.getElementById('prev').onclick = () => { currentPage--; render() }
         document.getElementById('next').onclick = () => { currentPage++; render() }
 
-        loadFullPostData()
+        loadPosts()
     </script>
 </body>
 
