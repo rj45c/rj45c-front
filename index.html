@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RJ45C | 网络与技术个人站</title>
+    <meta name="description" content="RJ45C 个人技术站，专注网络运维、自动化开发、云原生与IT基础设施">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome 图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- 自定义 Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#0ea5e9',
+                        dark: '#0f172a',
+                        light: '#f8fafc'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-gradient {
+                background-clip: text;
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+            .animate-float {
+                animation: float 6s ease-in-out infinite;
+            }
+            @keyframes float {
+                0% { transform: translateY(0px); }
+                50% { transform: translateY(-20px); }
+                100% { transform: translateY(0px); }
+            }
+        }
+    </style>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .nav-shadow {
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+
+<body class="bg-light text-dark antialiased">
+    <!-- 导航栏 -->
+    <nav id="navbar" class="fixed w-full z-50 transition-all duration-300 bg-white/80 nav-shadow">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="#" class="text-2xl font-bold text-primary flex items-center gap-2">
+                        <i class="fa-solid fa-network-wired"></i>
+                        <span>RJ45C</span>
+                    </a>
+                </div>
+                <!-- 桌面端导航 -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#home" class="text-gray-700 hover:text-primary transition-colors font-medium">首页</a>
+                    <a href="#about" class="text-gray-700 hover:text-primary transition-colors font-medium">关于</a>
+                    <a href="#skills" class="text-gray-700 hover:text-primary transition-colors font-medium">技能</a>
+                    <a href="#projects" class="text-gray-700 hover:text-primary transition-colors font-medium">项目</a>
+                    <a href="#contact" class="text-gray-700 hover:text-primary transition-colors font-medium">联系</a>
+                </div>
+                <!-- 移动端菜单按钮 -->
+                <div class="md:hidden">
+                    <button id="menu-btn" class="text-gray-700 hover:text-primary focus:outline-none">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- 移动端导航菜单 -->
+        <div id="mobile-menu" class="md:hidden hidden bg-white/95 nav-shadow">
+            <div class="px-4 pt-2 pb-4 space-y-2">
+                <a href="#home"
+                    class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50">首页</a>
+                <a href="#about"
+                    class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50">关于</a>
+                <a href="#skills"
+                    class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50">技能</a>
+                <a href="#projects"
+                    class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50">项目</a>
+                <a href="#contact"
+                    class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50">联系</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 英雄区 -->
+    <section id="home"
+        class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 pt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div class="space-y-8">
+                    <h1 class="text-5xl md:text-6xl font-bold leading-tight">
+                        <span class="text-gradient bg-gradient-to-r from-primary to-secondary">
+                            网络连接世界
+                        </span>
+                        <br>
+                        <span class="text-dark">技术驱动未来</span>
+                    </h1>
+                    <p class="text-xl text-gray-600 leading-relaxed">
+                        专注企业级网络架构、自动化运维与云原生技术，
+                        从弱电工程到DevOps转型，用代码简化运维，用技术提升效率。
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <a href="#projects"
+                            class="px-8 py-3 bg-primary text-white rounded-full font-semibold shadow-lg hover:bg-primary/90 transition-all transform hover:scale-105">
+                            查看项目
+                        </a>
+                        <a href="#contact"
+                            class="px-8 py-3 bg-white text-primary border-2 border-primary rounded-full font-semibold hover:bg-primary/5 transition-all transform hover:scale-105">
+                            联系我
+                        </a>
+                    </div>
+                    <div class="flex gap-6 pt-4">
+                        <a href="#" class="text-gray-500 hover:text-primary text-2xl transition-colors">
+                            <i class="fa-brands fa-github"></i>
+                        </a>
+                        <a href="#" class="text-gray-500 hover:text-primary text-2xl transition-colors">
+                            <i class="fa-brands fa-linkedin"></i>
+                        </a>
+                        <a href="#" class="text-gray-500 hover:text-primary text-2xl transition-colors">
+                            <i class="fa-brands fa-telegram"></i>
+                        </a>
+                        <a href="#" class="text-gray-500 hover:text-primary text-2xl transition-colors">
+                            <i class="fa-solid fa-envelope"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="flex justify-center">
+                    <div class="relative w-full max-w-md animate-float">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-full blur-3xl opacity-30">
+                        </div>
+                        <img src="https://picsum.photos/id/180/600/600" alt="Network Technology"
+                            class="relative rounded-2xl shadow-2xl">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 关于我 -->
+    <section id="about" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-dark mb-4">关于我</h2>
+                <div class="w-24 h-1 bg-primary mx-auto rounded-full"></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h3 class="text-2xl font-semibold mb-4">网络运维开发工程师</h3>
+                    <p class="text-gray-600 mb-4 leading-relaxed">
+                        拥有扎实的网络工程基础，专注于企业级网络架构设计、自动化运维工具开发，
+                        从传统弱电/网络工程师向网络DevOps转型，擅长用Python实现网络自动化，
+                        覆盖华为、H3C等厂商设备的全生命周期管理。
+                    </p>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        同时深入研究云原生技术、容器编排、监控系统搭建，致力于构建高效、稳定、可扩展的IT基础设施。
+                    </p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <i class="fa-solid fa-server text-primary text-3xl mb-2"></i>
+                            <h4 class="font-semibold">网络架构</h4>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <i class="fa-solid fa-code text-primary text-3xl mb-2"></i>
+                            <h4 class="font-semibold">自动化开发</h4>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <i class="fa-solid fa-cloud text-primary text-3xl mb-2"></i>
+                            <h4 class="font-semibold">云原生</h4>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <i class="fa-solid fa-shield-halved text-primary text-3xl mb-2"></i>
+                            <h4 class="font-semibold">网络安全</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 p-8 rounded-2xl shadow-lg">
+                    <h3 class="text-2xl font-semibold mb-6">个人信息</h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-center gap-4">
+                            <i class="fa-solid fa-user text-primary text-xl w-6"></i>
+                            <span class="text-gray-700">姓名：网络运维开发者</span>
+                        </li>
+                        <li class="flex items-center gap-4">
+                            <i class="fa-solid fa-briefcase text-primary text-xl w-6"></i>
+                            <span class="text-gray-700">职位：网络运维开发工程师</span>
+                        </li>
+                        <li class="flex items-center gap-4">
+                            <i class="fa-solid fa-location-dot text-primary text-xl w-6"></i>
+                            <span class="text-gray-700">地点：中国</span>
+                        </li>
+                        <li class="flex items-center gap-4">
+                            <i class="fa-solid fa-envelope text-primary text-xl w-6"></i>
+                            <span class="text-gray-700">邮箱：contact@rj45c.com</span>
+                        </li>
+                        <li class="flex items-center gap-4">
+                            <i class="fa-solid fa-globe text-primary text-xl w-6"></i>
+                            <span class="text-gray-700">网站：rj45c.com</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 技能展示 -->
+    <section id="skills" class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-dark mb-4">技能专长</h2>
+                <div class="w-24 h-1 bg-primary mx-auto rounded-full"></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- 网络技术 -->
+                <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+                    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+                        <i class="fa-solid fa-network-wired text-primary text-3xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-4">网络技术</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-center gap-2">
+                            <i class="fa-solid fa-check text-green-500"></i>
+                            <span>路由交换 (OSPF/BGP/MPLS)</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fa-solid fa-check text-green-500"></i>
+                            <span>EVPN VXLAN 数据中心</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fa-solid fa-check text-green-500"></i>
+                            <span>华为/H3C 厂商设备运维</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fa-solid fa-check text-green-500"></i>
+                            <span>网络安全与防火墙</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fa-solid fa-check text-green-500"></i>
+                            <span>弱电工程与综合布线</span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- 开发与自动化 -->
+                <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+                    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+                        <i class="fa-solid fa-code text-primary text-3xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-4">开发与自动化</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-center gap-2">
+                            <i class="fa-solid fa-check text-green-500"></i>
+                            <span>Python 网络自动化</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fa-solid fa-check text-green-500"></i>
+                            <span>Netmiko/Paramiko 设备交互</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fa-solid fa-check text-green-500"></i>
+                            <span>TextFSM 命令解析</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fa-solid fa-check text-green-500"></i>
+                            <span>Flask/FastAPI Web 开发</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fa-solid fa-check text-green-500"></i>
+                            <span>Git 版本控制</span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- 云原生与运维 -->
+                <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+                    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+                        <i class="fa-solid fa-cloud text-primary text-3xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-4">云原生与运维</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-center gap-2">
+                            <i class="fa-solid fa-check text-green-500"></i>
+                            <span>Linux 系统运维</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fa-solid fa-check text-green-500"></i>
+                            <span>Docker/Kubernetes 容器编排</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fa-solid fa-check text-green-500"></i>
+                            <span>Zabbix/Grafana 监控系统</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fa-solid fa-check text-green-500"></i>
+                            <span>MySQL/PostgreSQL 数据库</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fa-solid fa-check text-green-500"></i>
+                            <span>CI/CD 自动化部署</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 项目展示 -->
+    <section id="projects" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-dark mb-4">精选项目</h2>
+                <div class="w-24 h-1 bg-primary mx-auto rounded-full"></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- 项目1 -->
+                <div
+                    class="bg-gray-50 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-2">
+                    <img src="https://picsum.photos/id/0/600/400" alt="网络自动化平台" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">网络自动化运维平台</h3>
+                        <p class="text-gray-600 mb-4">基于Python+Flask开发的网络设备自动化管理平台，支持配置备份、批量下发、状态监控。</p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">Python</span>
+                            <span class="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">Flask</span>
+                            <span class="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">Netmiko</span>
+                        </div>
+                        <a href="#" class="text-primary font-medium hover:underline flex items-center gap-1">
+                            查看详情 <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+                <!-- 项目2 -->
+                <div
+                    class="bg-gray-50 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-2">
+                    <img src="https://picsum.photos/id/180/600/400" alt="CMDB资产管理系统" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">网络资产CMDB系统</h3>
+                        <p class="text-gray-600 mb-4">企业级网络资产配置管理系统，实现设备、链路、IP地址的全生命周期可视化管理。</p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">Python</span>
+                            <span class="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">FastAPI</span>
+                            <span class="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">Vue</span>
+                        </div>
+                        <a href="#" class="text-primary font-medium hover:underline flex items-center gap-1">
+                            查看详情 <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+                <!-- 项目3 -->
+                <div
+                    class="bg-gray-50 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-2">
+                    <img src="https://picsum.photos/id/4/600/400" alt="监控告警系统" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">智能监控告警平台</h3>
+                        <p class="text-gray-600 mb-4">基于Zabbix+Grafana的企业级监控系统，支持网络设备、服务器、业务系统的全方位监控。</p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">Zabbix</span>
+                            <span class="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">Grafana</span>
+                            <span class="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">Prometheus</span>
+                        </div>
+                        <a href="#" class="text-primary font-medium hover:underline flex items-center gap-1">
+                            查看详情 <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 联系我 -->
+    <section id="contact" class="py-20 bg-gradient-to-br from-primary/5 to-secondary/5">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-dark mb-4">联系我</h2>
+                <div class="w-24 h-1 bg-primary mx-auto rounded-full"></div>
+                <p class="text-gray-600 mt-4">有技术交流、项目合作或其他需求，欢迎随时联系</p>
+            </div>
+            <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+                <form id="contact-form" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-2">姓名</label>
+                            <input type="text" id="name" name="name" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">邮箱</label>
+                            <input type="email" id="email" name="email" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="subject" class="block text-sm font-medium text-gray-700 mb-2">主题</label>
+                        <input type="text" id="subject" name="subject" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all">
+                    </div>
+                    <div>
+                        <label for="message" class="block text-sm font-medium text-gray-700 mb-2">留言</label>
+                        <textarea id="message" name="message" rows="5" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"></textarea>
+                    </div>
+                    <div>
+                        <button type="submit"
+                            class="w-full py-3 bg-primary text-white rounded-lg font-semibold shadow-lg hover:bg-primary/90 transition-all transform hover:scale-[1.02]">
+                            发送消息
+                        </button>
+                    </div>
+                </form>
+                <div class="mt-12 pt-8 border-t border-gray-200">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                        <div>
+                            <i class="fa-solid fa-envelope text-primary text-3xl mb-3"></i>
+                            <p class="text-gray-600">contact@rj45c.com</p>
+                        </div>
+                        <div>
+                            <i class="fa-solid fa-location-dot text-primary text-3xl mb-3"></i>
+                            <p class="text-gray-600">中国</p>
+                        </div>
+                        <div>
+                            <i class="fa-solid fa-globe text-primary text-3xl mb-3"></i>
+                            <p class="text-gray-600">rj45c.com</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <a href="#" class="text-2xl font-bold flex items-center gap-2 mb-4">
+                        <i class="fa-solid fa-network-wired"></i>
+                        <span>RJ45C</span>
+                    </a>
+                    <p class="text-gray-400 mb-4">
+                        网络连接世界，技术驱动未来
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fa-brands fa-github text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fa-brands fa-linkedin text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fa-brands fa-telegram text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">快速链接</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#home" class="text-gray-400 hover:text-white transition-colors">首页</a></li>
+                        <li><a href="#about" class="text-gray-400 hover:text-white transition-colors">关于我</a></li>
+                        <li><a href="#skills" class="text-gray-400 hover:text-white transition-colors">技能专长</a></li>
+                        <li><a href="#projects" class="text-gray-400 hover:text-white transition-colors">精选项目</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">技术栈</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">网络自动化</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Python开发</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">云原生</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">运维监控</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">联系方式</h4>
+                    <ul class="space-y-2">
+                        <li class="flex items-center gap-2 text-gray-400">
+                            <i class="fa-solid fa-envelope"></i>
+                            <span>contact@rj45c.com</span>
+                        </li>
+                        <li class="flex items-center gap-2 text-gray-400">
+                            <i class="fa-solid fa-globe"></i>
+                            <span>rj45c.com</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 RJ45C. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript 交互 -->
+    <script>
+        // 移动端菜单切换
+        const menuBtn = document.getElementById('menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        menuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            const icon = menuBtn.querySelector('i');
+            icon.classList.toggle('fa-bars');
+            icon.classList.toggle('fa-times');
+        });
+
+        // 导航栏滚动效果
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 10) {
+                navbar.classList.add('bg-white/95');
+            } else {
+                navbar.classList.remove('bg-white/95');
+            }
+        });
+
+        // 移动端菜单点击后自动关闭
+        const mobileLinks = mobileMenu.querySelectorAll('a');
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+                const icon = menuBtn.querySelector('i');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            });
+        });
+
+        // 表单提交处理
+        const contactForm = document.getElementById('contact-form');
+        contactForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('感谢您的留言！我会尽快回复您。');
+            contactForm.reset();
+        });
+    </script>
+</body>
+
+</html>
