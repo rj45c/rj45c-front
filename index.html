@@ -100,10 +100,37 @@
     </div>
 
     <script type="module">
-        import { postsList } from './posts-list.js'
+        import { parsePostFrontmatter } from './utils/parser.js'
         const POSTS_PER_PAGE = 5
         let currentPage = 1
-        let allPosts = [...postsList]
+        let allPosts = []
+
+        // 自动获取所有文章
+        async function loadAllPosts() {
+            try {
+                const res = await fetch('/posts/')
+                const html = await res.text()
+                const parser = new DOMParser()
+                const doc = parser.parseFromString(html, 'text/html')
+                const files = Array.from(doc.querySelectorAll('a'))
+                    .map(a => a.href.split('/').pop())
+                    .filter(f => f.endsWith('.md'))
+
+                const posts = []
+                for (const file of files) {
+                    try {
+                        const res = await fetch(`/posts/${file}`)
+                        const text = await res.text()
+                        const { data } = parsePostFrontmatter(text)
+                        posts.push({ ...data, file })
+                    } catch (e) { }
+                }
+                allPosts = posts.sort((a, b) => new Date(b.date) - new Date(a.date))
+                render()
+            } catch (e) {
+                document.getElementById('list').innerHTML = '<div class="empty">加载文章失败</div>'
+            }
+        }
 
         function render() {
             const total = Math.max(1, Math.ceil(allPosts.length / POSTS_PER_PAGE))
@@ -119,23 +146,21 @@
                 return
             }
 
-            const html = pageData.map(p => `
-    <div class="post-item">
-      <h2><a href="post.html?file=${encodeURIComponent(p.file)}">${p.title}</a></h2>
-      <div class="meta">
-        ${p.date} ${p.category ? `<span class="category">${p.category}</span>` : ''}
-      </div>
-      ${p.tags?.map(t => `<span class="tag">${t}</span>`).join('') || ''}
-      <div class="excerpt">${p.excerpt}</div>
-    </div>
-  `).join('')
-
-            document.getElementById('list').innerHTML = html
+            document.getElementById('list').innerHTML = pageData.map(p => `
+                <div class="post-item">
+                    <h2><a href="post.html?file=${encodeURIComponent(p.file)}">${p.title}</a></h2>
+                    <div class="meta">
+                        ${p.date} ${p.category ? `<span class="category">${p.category}</span>` : ''}
+                    </div>
+                    ${p.tags?.map(t => `<span class="tag">${t}</span>`).join('') || ''}
+                    <div class="excerpt">${p.excerpt}</div>
+                </div>
+            `).join('')
         }
 
         document.getElementById('prev').onclick = () => { currentPage--; render() }
         document.getElementById('next').onclick = () => { currentPage++; render() }
-        render()
+        loadAllPosts()
     </script>
 </body>
 

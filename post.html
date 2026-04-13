@@ -2,8 +2,8 @@
 <html lang="zh-CN">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>文章</title>
     <style>
         body {
@@ -26,7 +26,6 @@
         }
 
         .tag {
-            display: inline-block;
             background: #f4f5f7;
             padding: 2px 8px;
             border-radius: 4px;
@@ -85,75 +84,55 @@
     <div id="content"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
     <script type="module">
         import { parsePostFrontmatter } from './utils/parser.js'
-
-        // 1. 获取文件参数，增加校验
         const file = new URLSearchParams(location.search).get('file')
         if (!file) {
             document.getElementById('title').textContent = '参数错误'
-            document.getElementById('content').innerHTML = '<p class="error">文章参数缺失，请从首页点击进入</p>'
-            throw new Error('文件参数缺失')
+            document.getElementById('content').innerHTML = '<p class="error">请从首页进入</p>'
+            throw ''
         }
 
-        // 2. 增强版加载逻辑，处理404
-        async function loadPost() {
+        // 安全校验
+        if (!file.endsWith('.md') || file.includes('../')) {
+            document.getElementById('title').textContent = '非法访问'
+            document.getElementById('content').innerHTML = '<p class="error">非法文件路径</p>'
+            throw ''
+        }
+
+        async function load() {
             try {
                 const res = await fetch(`/posts/${file}`)
-                if (!res.ok) {
-                    throw new Error(`HTTP error! status: ${res.status}`)
-                }
+                if (!res.ok) throw new Error('文件不存在')
                 const text = await res.text()
                 const { data, content } = parsePostFrontmatter(text)
 
-                // 3. 渲染标题（兜底处理）
-                document.getElementById('title').textContent = data.title || '无标题'
+                document.getElementById('title').textContent = data.title
+                let meta = data.date || ''
+                if (data.category) meta += ` <span class="category">${data.category}</span>`
+                if (data.tags.length) meta += ' ' + data.tags.map(t => `<span class="tag">${t}</span>`).join('')
+                document.getElementById('meta').innerHTML = meta
 
-                // 4. 渲染元信息（兜底处理）
-                let metaHtml = data.date || ''
-                if (data.category) metaHtml += ` <span class="category">${data.category}</span>`
-                if (data.tags && data.tags.length > 0) {
-                    metaHtml += ' ' + data.tags.map(t => `<span class="tag">${t}</span>`).join('')
-                }
-                document.getElementById('meta').innerHTML = metaHtml
-
-                // 5. 生成目录（仅提取正文标题）
-                const html = marked.parse(content)
+                const html = DOMPurify.sanitize(marked.parse(content))
                 const temp = document.createElement('div')
                 temp.innerHTML = html
                 const heads = temp.querySelectorAll('h1,h2,h3')
 
-                if (heads.length > 0) {
+                if (heads.length) {
                     let toc = '<h3>目录</h3><ul>'
-                    heads.forEach((h, i) => {
-                        const id = `heading-${i}`
-                        h.id = id
-                        toc += `<li><a href="#${id}">${h.textContent}</a></li>`
-                    })
-                    toc += '</ul>'
-                    document.getElementById('toc').innerHTML = toc
+                    heads.forEach((h, i) => { h.id = `h${i}`; toc += `<li><a href="#h${i}">${h.textContent}</a></li>` })
+                    document.getElementById('toc').innerHTML = toc + '</ul>'
                 } else {
                     document.getElementById('toc').style.display = 'none'
                 }
-
-                // 6. 渲染正文
                 document.getElementById('content').innerHTML = temp.innerHTML
-
             } catch (e) {
-                console.error('加载失败:', e)
                 document.getElementById('title').textContent = '加载失败'
-                document.getElementById('content').innerHTML = `
-      <p class="error">文章加载失败，请检查：</p>
-      <ul class="error">
-        <li>posts/ 文件夹是否存在，且与 index.html 同级</li>
-        <li>文件 ${file} 是否存在于 posts/ 目录下</li>
-        <li>文件名大小写是否完全一致</li>
-      </ul>
-    `
+                document.getElementById('content').innerHTML = `<p class="error">${e.message}</p>`
             }
         }
-
-        loadPost()
+        load()
     </script>
 </body>
 
