@@ -9,125 +9,235 @@
         * {
             margin: 0;
             padding: 0;
-            box-sizing: border-box
+            box-sizing: border-box;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-            max-width: 800px;
+            background: #f8fafc;
+            color: #1e293b;
+            padding-bottom: 4rem;
+        }
+
+        .container {
+            max-width: 860px;
             margin: 0 auto;
-            padding: 2rem 1rem;
-            line-height: 1.8;
-            background: #f9fafb;
-            color: #111827;
+            padding: 2rem 1.2rem;
         }
 
         .back {
-            display: inline-block;
-            margin-bottom: 1rem;
-            color: #165DFF;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 1.4rem;
+            color: #475569;
+            font-size: 14px;
             text-decoration: none;
-            font-size: 14px;
+            transition: color 0.2s;
         }
 
-        h1 {
-            font-size: 1.8rem;
-            margin-bottom: 0.8rem;
-            line-height: 1.4;
+        .back:hover {
+            color: #165DFF;
+        }
+
+        h1.article-title {
+            font-size: 2rem;
             font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 0.8rem;
+            color: #0f172a;
         }
 
-        .meta {
-            color: #6b7280;
-            margin: 1rem 0;
+        .meta-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            align-items: center;
             font-size: 14px;
-        }
-
-        .tag {
-            display: inline-block;
-            background: #f4f5f7;
-            padding: 3px 8px;
-            border-radius: 6px;
-            margin-right: 6px;
-            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 2rem;
         }
 
         .category {
-            background: #e8f3ff;
+            background: #e0efff;
             color: #165DFF;
-            padding: 2px 8px;
-            border-radius: 4px;
+            padding: 3px 10px;
+            border-radius: 999px;
             font-size: 13px;
-            margin-right: 8px;
+            font-weight: 500;
         }
 
+        .tag {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 13px;
+        }
+
+        /* 目录卡片 */
         .toc {
-            border: 1px solid #eee;
-            padding: 1.2rem;
-            border-radius: 10px;
-            margin: 2rem 0;
-            background: #fff;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 1.4rem;
+            margin-bottom: 2rem;
         }
 
         .toc h3 {
-            margin: 0 0 0.6rem;
-            font-size: 1rem;
-            color: #374151;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            color: #334155;
         }
 
         .toc ul {
-            padding-left: 1.2rem;
-            margin: 0;
+            list-style: none;
+            padding-left: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
         }
 
-        .toc li {
-            margin: 0.4rem 0;
-        }
-
-        a {
-            color: #165DFF;
+        .toc li a {
+            color: #475569;
             text-decoration: none;
+            font-size: 15px;
+            transition: color 0.2s;
+        }
+
+        .toc li a:hover {
+            color: #165DFF;
+        }
+
+        /* 文章内容卡片 */
+        .content-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 2.4rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+            border: 1px solid #f1f5f9;
         }
 
         #content {
-            margin-top: 1rem;
-            line-height: 1.9;
+            line-height: 1.8;
             font-size: 16px;
+            color: #1e293b;
         }
 
-        #content h1,
-        #content h2,
+        #content h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 2.2rem 0 1rem;
+            color: #1e293b;
+        }
+
         #content h3 {
-            margin: 1.5rem 0 1rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 1.8rem 0 0.8rem;
         }
 
         #content p {
-            margin: 1rem 0;
+            margin: 0.9rem 0;
         }
 
-        /* 🔥 核心修复：图片自适应样式 */
+        /* 列表 */
+        #content ul,
+        #content ol {
+            margin: 1rem 0;
+            padding-left: 1.6rem;
+        }
+
+        #content li {
+            margin: 0.4rem 0;
+        }
+
+        /* 引用 */
+        #content blockquote {
+            border-left: 4px solid #165DFF;
+            background: #f8fafc;
+            padding: 1rem 1.4rem;
+            margin: 1.4rem 0;
+            border-radius: 6px;
+            color: #475569;
+        }
+
+        /* 分割线 */
+        #content hr {
+            border: none;
+            height: 1px;
+            background: #e2e8f0;
+            margin: 2.4rem 0;
+        }
+
+        /* 表格 */
+        #content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.6rem 0;
+            background: #fbfdff;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        #content th {
+            background: #f1f5f9;
+            padding: 0.8rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        #content td {
+            padding: 0.8rem 1rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        /* 代码块 */
+        #content pre {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 1.4rem;
+            overflow-x: auto;
+            margin: 1.4rem 0;
+            font-family: ui-monospace, "Cascadia Mono", "Consolas", monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        #content code {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: ui-monospace, monospace;
+            font-size: 0.9em;
+            color: #d92626;
+        }
+
+        /* 图片 */
         #content img {
             max-width: 100%;
             height: auto;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            margin: 1.5rem 0;
+            border-radius: 10px;
+            margin: 1.4rem 0;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
             cursor: zoom-in;
-            transition: transform 0.2s ease;
+            transition: transform 0.2s;
         }
 
         #content img:hover {
             transform: scale(1.01);
         }
 
-        /* 图片查看器遮罩 */
+        /* 图片查看器 */
         .image-viewer {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.92);
             display: none;
             align-items: center;
             justify-content: center;
@@ -136,29 +246,43 @@
         }
 
         .image-viewer img {
-            max-width: 95%;
-            max-height: 95%;
-            border-radius: 4px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            max-width: 94%;
+            max-height: 94%;
+            border-radius: 6px;
         }
 
         .error {
-            color: #ff4d4f;
+            color: #e53935;
             margin-top: 2rem;
+        }
+
+        @media (max-width: 640px) {
+            .content-card {
+                padding: 1.6rem 1.2rem;
+            }
+
+            h1.article-title {
+                font-size: 1.6rem;
+            }
         }
     </style>
 </head>
 
 <body>
-    <a href="index.html" class="back">← 返回首页</a>
-    <h1 id="title">加载中...</h1>
-    <div class="meta" id="meta"></div>
-    <div class="toc" id="toc"></div>
-    <div id="content"></div>
+    <div class="container">
+        <a href="index.html" class="back">← 返回首页</a>
+        <h1 class="article-title" id="title">加载中...</h1>
+        <div class="meta-bar" id="meta"></div>
 
-    <!-- 图片查看器 -->
+        <div class="toc" id="toc"></div>
+
+        <div class="content-card">
+            <div id="content"></div>
+        </div>
+    </div>
+
     <div class="image-viewer" id="imageViewer">
-        <img src="" alt="大图查看" id="viewerImg">
+        <img src="" id="viewerImg" alt="">
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -169,31 +293,32 @@
         const file = new URLSearchParams(location.search).get('file')
 
         if (!file || !file.endsWith('.md') || file.includes('..')) {
-            document.getElementById('title').textContent = '无法访问'
-            document.getElementById('content').innerHTML = '<p class="error">非法参数</p>'
+            document.getElementById('title').textContent = '非法访问'
+            document.getElementById('content').innerHTML = '<p class="error">参数不合法</p>'
             throw ''
         }
 
         async function loadPost() {
             try {
                 const res = await fetch(`/posts/${file}`)
-                if (!res.ok) throw new Error('文章不存在')
+                if (!res.ok) throw new Error('文章不存在或已删除')
                 const text = await res.text()
                 const { data, content } = parsePostFrontmatter(text)
 
                 document.getElementById('title').textContent = data.title
-                document.title = data.title + ' - RJ45C'
+                document.title = `${data.title} - RJ45C`
 
-                let metaHtml = data.date || ''
-                if (data.category) metaHtml += ` <span class="category">${data.category}</span>`
-                if (data.tags.length) metaHtml += ' ' + data.tags.map(t => `<span class="tag">${t}</span>`).join('')
-                document.getElementById('meta').innerHTML = metaHtml
+                let meta = `<span>${data.date}</span>`
+                if (data.category) meta += `<span class="category">${data.category}</span>`
+                if (data.tags?.length) meta += data.tags.map(t => `<span class="tag">${t}</span>`).join('')
+                document.getElementById('meta').innerHTML = meta
 
                 const html = DOMPurify.sanitize(marked.parse(content))
                 const temp = document.createElement('div')
                 temp.innerHTML = html
 
-                const heads = temp.querySelectorAll('h1,h2,h3')
+                // 自动生成目录
+                const heads = temp.querySelectorAll('h2,h3')
                 if (heads.length) {
                     let toc = '<h3>目录</h3><ul>'
                     heads.forEach((h, i) => {
@@ -208,28 +333,24 @@
 
                 document.getElementById('content').innerHTML = temp.innerHTML
 
-                // 🔥 绑定图片点击放大事件
-                const images = document.querySelectorAll('#content img')
+                // 图片点击放大
                 const viewer = document.getElementById('imageViewer')
-                const viewerImg = document.getElementById('viewerImg')
-
-                images.forEach(img => {
+                const vImg = document.getElementById('viewerImg')
+                document.querySelectorAll('#content img').forEach(img => {
                     img.addEventListener('click', () => {
-                        viewerImg.src = img.src
+                        vImg.src = img.src
                         viewer.style.display = 'flex'
                         document.body.style.overflow = 'hidden'
                     })
                 })
 
-                // 点击遮罩关闭查看器
                 viewer.addEventListener('click', () => {
                     viewer.style.display = 'none'
                     document.body.style.overflow = 'auto'
                 })
 
-                // ESC 键关闭查看器
-                document.addEventListener('keydown', (e) => {
-                    if (e.key === 'Escape' && viewer.style.display === 'flex') {
+                document.addEventListener('keydown', e => {
+                    if (e.key === 'Escape') {
                         viewer.style.display = 'none'
                         document.body.style.overflow = 'auto'
                     }
