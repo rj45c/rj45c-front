@@ -66,8 +66,7 @@
         }
 
         .pagination button:disabled {
-            opacity: 0.4;
-            cursor: not-allowed
+            opacity: 0.4
         }
 
         .category {
@@ -80,8 +79,13 @@
 
         .excerpt {
             color: #333;
-            margin-top: 0.5rem;
-            line-height: 1.6
+            margin-top: 0.5rem
+        }
+
+        .empty {
+            text-align: center;
+            color: #888;
+            padding: 3rem 0
         }
     </style>
 </head>
@@ -96,134 +100,42 @@
     </div>
 
     <script type="module">
-        import { parsePostFrontmatter } from './utils/parser.js';
-
-        const POSTS_PER_PAGE = 5;
-        let currentPage = 1;
-        let allPosts = [];
-
-        // 兼容本地+线上的文章列表获取
-        async function loadAllPosts() {
-            // 线上环境：自动读取目录
-            if (window.location.host !== '127.0.0.1:5500') {
-                try {
-                    const res = await fetch('/posts/');
-                    const text = await res.text();
-                    const doc = new DOMParser().parseFromString(text, 'text/html');
-                    const files = Array.from(doc.querySelectorAll('a[href$=".md"]'))
-                        .map(a => a.textContent.trim())
-                        .filter(f => f.endsWith('.md'));
-                    return await loadPostsFromFiles(files);
-                } catch (e) {
-                    console.error('线上目录读取失败，切换本地方案', e);
-                }
-            }
-
-            // 本地调试：手动维护文章列表（替换为你本地的md文件名）
-            const localFiles = [
-                'aaaa.md',
-                'aaaa copy 2.md',
-                'aaaa copy 3.md',
-                'aaaa copy 4.md',
-                'aaaa copy 5.md',
-                'aaaa copy 6.md',
-                'aaaa copy 7.md',
-                'aaaa copy 8.md',
-                'aaaa copy 9.md',
-                'aaaa copy 10.md',
-                'aaaa copy 11.md',
-                'aaaa copy 12.md',
-                'aaaa copy 13.md',
-                'aaaa copy 14.md',
-                'aaaa copy 15.md',
-
-            ];
-            return await loadPostsFromFiles(localFiles);
-        }
-
-        // 通用文章加载逻辑
-        async function loadPostsFromFiles(files) {
-            const posts = [];
-            for (const file of files) {
-                try {
-                    const r = await fetch(`/posts/${file}`);
-                    if (!r.ok) continue;
-                    const md = await r.text();
-                    const { data, content } = parsePostFrontmatter(md);
-
-                    // 自动生成摘要（如果没有excerpt）
-                    const excerpt = data.excerpt || content.replace(/^#.*\n/, '').slice(0, 120) + '...';
-
-                    posts.push({
-                        file,
-                        title: data.title || file.replace('.md', ''),
-                        date: data.date || '',
-                        category: data.category || '',
-                        tags: data.tags || [],
-                        excerpt,
-                        content
-                    });
-                } catch (e) {
-                    console.error(`加载文章 ${file} 失败:`, e);
-                }
-            }
-
-            // 按日期倒序排列（无日期的放最后）
-            return posts.sort((a, b) => {
-                const dateA = a.date ? new Date(a.date).getTime() : 0;
-                const dateB = b.date ? new Date(b.date).getTime() : 0;
-                return dateB - dateA;
-            });
-        }
+        import { postsList } from './posts-list.js'
+        const POSTS_PER_PAGE = 5
+        let currentPage = 1
+        let allPosts = [...postsList]
 
         function render() {
-            const totalPages = Math.max(1, Math.ceil(allPosts.length / POSTS_PER_PAGE));
-            const start = (currentPage - 1) * POSTS_PER_PAGE;
-            const pagePosts = allPosts.slice(start, start + POSTS_PER_PAGE);
+            const total = Math.max(1, Math.ceil(allPosts.length / POSTS_PER_PAGE))
+            const start = (currentPage - 1) * POSTS_PER_PAGE
+            const pageData = allPosts.slice(start, start + POSTS_PER_PAGE)
 
-            document.getElementById('page-info').textContent = `第 ${currentPage} / ${totalPages} 页`;
-            document.getElementById('prev').disabled = currentPage <= 1;
-            document.getElementById('next').disabled = currentPage >= totalPages;
+            document.getElementById('page-info').innerText = `第 ${currentPage} / ${total} 页`
+            document.getElementById('prev').disabled = currentPage <= 1
+            document.getElementById('next').disabled = currentPage >= total
 
             if (allPosts.length === 0) {
-                document.getElementById('list').innerHTML = '<p>暂无文章，快去写第一篇吧~</p>';
-                return;
+                document.getElementById('list').innerHTML = '<div class="empty">暂无文章</div>'
+                return
             }
 
-            const html = pagePosts.map(p => `
+            const html = pageData.map(p => `
     <div class="post-item">
       <h2><a href="post.html?file=${encodeURIComponent(p.file)}">${p.title}</a></h2>
       <div class="meta">
-        ${p.date || ''} 
-        ${p.category ? `<span class="category">${p.category}</span>` : ''}
+        ${p.date} ${p.category ? `<span class="category">${p.category}</span>` : ''}
       </div>
-      ${p.tags.length > 0 ? p.tags.map(t => `<span class="tag">${t}</span>`).join('') : ''}
+      ${p.tags?.map(t => `<span class="tag">${t}</span>`).join('') || ''}
       <div class="excerpt">${p.excerpt}</div>
     </div>
-  `).join('');
+  `).join('')
 
-            document.getElementById('list').innerHTML = html;
+            document.getElementById('list').innerHTML = html
         }
 
-        // 绑定分页事件
-        document.getElementById('prev').addEventListener('click', () => {
-            if (currentPage > 1) {
-                currentPage--;
-                render();
-            }
-        });
-        document.getElementById('next').addEventListener('click', () => {
-            if (currentPage < Math.max(1, Math.ceil(allPosts.length / POSTS_PER_PAGE))) {
-                currentPage++;
-                render();
-            }
-        });
-
-        // 初始化
-        (async () => {
-            allPosts = await loadAllPosts();
-            render();
-        })();
+        document.getElementById('prev').onclick = () => { currentPage--; render() }
+        document.getElementById('next').onclick = () => { currentPage++; render() }
+        render()
     </script>
 </body>
 

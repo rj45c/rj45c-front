@@ -21,7 +21,7 @@
 
         .meta {
             color: #666;
-            margin-bottom: 1.5rem;
+            margin: 1rem 0;
             font-size: 14px
         }
 
@@ -47,121 +47,113 @@
             border: 1px solid #eee;
             padding: 1rem;
             border-radius: 8px;
-            margin-bottom: 2rem;
+            margin: 2rem 0;
             background: #fafafa
         }
 
         .toc h3 {
-            margin-top: 0;
-            font-size: 1rem;
-            margin-bottom: 0.5rem
+            margin: 0 0 0.5rem;
+            font-size: 1rem
         }
 
         .toc ul {
             padding-left: 1.2rem;
-            margin: 0.5rem 0;
-            list-style-type: disc
+            margin: 0
         }
 
         .toc li {
             margin: 0.3rem 0
         }
 
-        .toc a {
+        a {
             color: #165DFF;
             text-decoration: none
         }
 
-        .content {
+        .error {
+            color: #ff4d4f;
             margin-top: 2rem
-        }
-
-        a.back {
-            color: #165DFF;
-            text-decoration: none;
-            font-size: 1rem
-        }
-
-        hr {
-            border: none;
-            border-top: 1px solid #eee;
-            margin: 1.5rem 0
         }
     </style>
 </head>
 
 <body>
-    <a class="back" href="index.html">← 返回首页</a>
-    <h1 id="title"></h1>
+    <a href="index.html">← 返回首页</a>
+    <h1 id="title">加载中...</h1>
     <div class="meta" id="meta"></div>
     <div class="toc" id="toc"></div>
-    <hr>
     <div id="content"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script type="module">
-        import { parsePostFrontmatter } from './utils/parser.js';
+        import { parsePostFrontmatter } from './utils/parser.js'
 
-        // 1. 获取文章文件
-        const file = new URLSearchParams(location.search).get('file');
+        // 1. 获取文件参数，增加校验
+        const file = new URLSearchParams(location.search).get('file')
         if (!file) {
-            document.getElementById('title').textContent = '文章不存在';
-            throw new Error('文件参数缺失');
+            document.getElementById('title').textContent = '参数错误'
+            document.getElementById('content').innerHTML = '<p class="error">文章参数缺失，请从首页点击进入</p>'
+            throw new Error('文件参数缺失')
         }
 
-        // 2. 加载并解析文章
-        (async () => {
+        // 2. 增强版加载逻辑，处理404
+        async function loadPost() {
             try {
-                const res = await fetch(`/posts/${file}`);
-                if (!res.ok) throw new Error('文章加载失败');
-                const md = await res.text();
-                const { data, content } = parsePostFrontmatter(md);
-
-                // 3. 渲染标题
-                document.getElementById('title').textContent = data.title;
-
-                // 4. 渲染元信息（日期/分类/标签）
-                let metaHtml = data.date || '';
-                if (data.category) {
-                    metaHtml += ` <span class="category">${data.category}</span>`;
+                const res = await fetch(`/posts/${file}`)
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`)
                 }
+                const text = await res.text()
+                const { data, content } = parsePostFrontmatter(text)
+
+                // 3. 渲染标题（兜底处理）
+                document.getElementById('title').textContent = data.title || '无标题'
+
+                // 4. 渲染元信息（兜底处理）
+                let metaHtml = data.date || ''
+                if (data.category) metaHtml += ` <span class="category">${data.category}</span>`
                 if (data.tags && data.tags.length > 0) {
-                    metaHtml += ' ' + data.tags.map(t => `<span class="tag">${t}</span>`).join('');
+                    metaHtml += ' ' + data.tags.map(t => `<span class="tag">${t}</span>`).join('')
                 }
-                document.getElementById('meta').innerHTML = metaHtml;
+                document.getElementById('meta').innerHTML = metaHtml
 
-                // 5. 生成目录（仅提取h1/h2/h3，过滤元数据）
-                const html = marked.parse(content);
-                const temp = document.createElement('div');
-                temp.innerHTML = html;
-                const heads = temp.querySelectorAll('h1, h2, h3');
+                // 5. 生成目录（仅提取正文标题）
+                const html = marked.parse(content)
+                const temp = document.createElement('div')
+                temp.innerHTML = html
+                const heads = temp.querySelectorAll('h1,h2,h3')
 
                 if (heads.length > 0) {
-                    let toc = '<h3>目录</h3><ul>';
+                    let toc = '<h3>目录</h3><ul>'
                     heads.forEach((h, i) => {
-                        const id = `heading-${i}`;
-                        h.id = id;
-                        // 按标题层级缩进
-                        const level = h.tagName.toLowerCase();
-                        const indent = level === 'h1' ? '' : level === 'h2' ? '&nbsp;&nbsp;' : '&nbsp;&nbsp;&nbsp;&nbsp;';
-                        toc += `<li>${indent}<a href="#${id}">${h.textContent}</a></li>`;
-                    });
-                    toc += '</ul>';
-                    document.getElementById('toc').innerHTML = toc;
+                        const id = `heading-${i}`
+                        h.id = id
+                        toc += `<li><a href="#${id}">${h.textContent}</a></li>`
+                    })
+                    toc += '</ul>'
+                    document.getElementById('toc').innerHTML = toc
                 } else {
-                    // 无标题时隐藏目录
-                    document.getElementById('toc').style.display = 'none';
+                    document.getElementById('toc').style.display = 'none'
                 }
 
                 // 6. 渲染正文
-                document.getElementById('content').innerHTML = temp.innerHTML;
+                document.getElementById('content').innerHTML = temp.innerHTML
 
             } catch (e) {
-                console.error('文章加载错误:', e);
-                document.getElementById('title').textContent = '加载失败';
-                document.getElementById('content').innerHTML = '<p>文章加载失败，请检查文件格式</p>';
+                console.error('加载失败:', e)
+                document.getElementById('title').textContent = '加载失败'
+                document.getElementById('content').innerHTML = `
+      <p class="error">文章加载失败，请检查：</p>
+      <ul class="error">
+        <li>posts/ 文件夹是否存在，且与 index.html 同级</li>
+        <li>文件 ${file} 是否存在于 posts/ 目录下</li>
+        <li>文件名大小写是否完全一致</li>
+      </ul>
+    `
             }
-        })();
+        }
+
+        loadPost()
     </script>
 </body>
 
