@@ -87,52 +87,55 @@
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
     <script type="module">
         import { parsePostFrontmatter } from './utils/parser.js'
-        const file = new URLSearchParams(location.search).get('file')
-        if (!file) {
-            document.getElementById('title').textContent = '参数错误'
-            document.getElementById('content').innerHTML = '<p class="error">请从首页进入</p>'
+        const urlParams = new URLSearchParams(location.search)
+        const file = urlParams.get('file')
+
+        if (!file || !file.endsWith('.md') || file.includes('..')) {
+            document.getElementById('title').textContent = '无法访问'
+            document.getElementById('content').innerHTML = '<p class="error">非法参数</p>'
             throw ''
         }
 
-        // 安全校验
-        if (!file.endsWith('.md') || file.includes('../')) {
-            document.getElementById('title').textContent = '非法访问'
-            document.getElementById('content').innerHTML = '<p class="error">非法文件路径</p>'
-            throw ''
-        }
-
-        async function load() {
+        async function loadPost() {
             try {
                 const res = await fetch(`/posts/${file}`)
-                if (!res.ok) throw new Error('文件不存在')
+                if (!res.ok) throw new Error('文章不存在或已删除')
                 const text = await res.text()
                 const { data, content } = parsePostFrontmatter(text)
 
                 document.getElementById('title').textContent = data.title
-                let meta = data.date || ''
-                if (data.category) meta += ` <span class="category">${data.category}</span>`
-                if (data.tags.length) meta += ' ' + data.tags.map(t => `<span class="tag">${t}</span>`).join('')
-                document.getElementById('meta').innerHTML = meta
+                document.title = data.title + ' - RJ45C'
+
+                let metaHtml = data.date || ''
+                if (data.category) metaHtml += ` <span class="category">${data.category}</span>`
+                if (data.tags.length) metaHtml += ' ' + data.tags.map(t => `<span class="tag">${t}</span>`).join('')
+                document.getElementById('meta').innerHTML = metaHtml
 
                 const html = DOMPurify.sanitize(marked.parse(content))
                 const temp = document.createElement('div')
                 temp.innerHTML = html
-                const heads = temp.querySelectorAll('h1,h2,h3')
 
+                const heads = temp.querySelectorAll('h1,h2,h3')
                 if (heads.length) {
                     let toc = '<h3>目录</h3><ul>'
-                    heads.forEach((h, i) => { h.id = `h${i}`; toc += `<li><a href="#h${i}">${h.textContent}</a></li>` })
-                    document.getElementById('toc').innerHTML = toc + '</ul>'
+                    heads.forEach((h, i) => {
+                        h.id = `heading-${i}`
+                        toc += `<li><a href="#heading-${i}">${h.textContent}</a></li>`
+                    })
+                    toc += '</ul>'
+                    document.getElementById('toc').innerHTML = toc
                 } else {
                     document.getElementById('toc').style.display = 'none'
                 }
+
                 document.getElementById('content').innerHTML = temp.innerHTML
             } catch (e) {
                 document.getElementById('title').textContent = '加载失败'
                 document.getElementById('content').innerHTML = `<p class="error">${e.message}</p>`
             }
         }
-        load()
+
+        loadPost()
     </script>
 </body>
 

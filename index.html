@@ -101,35 +101,26 @@
 
     <script type="module">
         import { parsePostFrontmatter } from './utils/parser.js'
+        import { postsList } from './posts-list.js'
+
         const POSTS_PER_PAGE = 5
         let currentPage = 1
-        let allPosts = []
+        let allPosts = [...postsList]
 
-        // 自动获取所有文章
-        async function loadAllPosts() {
-            try {
-                const res = await fetch('/posts/')
-                const html = await res.text()
-                const parser = new DOMParser()
-                const doc = parser.parseFromString(html, 'text/html')
-                const files = Array.from(doc.querySelectorAll('a'))
-                    .map(a => a.href.split('/').pop())
-                    .filter(f => f.endsWith('.md'))
-
-                const posts = []
-                for (const file of files) {
-                    try {
-                        const res = await fetch(`/posts/${file}`)
-                        const text = await res.text()
-                        const { data } = parsePostFrontmatter(text)
-                        posts.push({ ...data, file })
-                    } catch (e) { }
+        async function loadFullPostData() {
+            const updated = []
+            for (const post of allPosts) {
+                try {
+                    const res = await fetch(`/posts/${post.file}`)
+                    const text = await res.text()
+                    const { data } = parsePostFrontmatter(text)
+                    updated.push({ ...data, file: post.file })
+                } catch (e) {
+                    updated.push(post)
                 }
-                allPosts = posts.sort((a, b) => new Date(b.date) - new Date(a.date))
-                render()
-            } catch (e) {
-                document.getElementById('list').innerHTML = '<div class="empty">加载文章失败</div>'
             }
+            allPosts = updated.sort((a, b) => (b.date || '') > (a.date || '') ? 1 : -1)
+            render()
         }
 
         function render() {
@@ -160,7 +151,8 @@
 
         document.getElementById('prev').onclick = () => { currentPage--; render() }
         document.getElementById('next').onclick = () => { currentPage++; render() }
-        loadAllPosts()
+
+        loadFullPostData()
     </script>
 </body>
 
