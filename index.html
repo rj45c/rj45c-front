@@ -32,6 +32,7 @@
         /* 搜索框样式 */
         .search-container {
             margin-bottom: 2rem;
+            position: relative;
         }
 
         #search-input {
@@ -172,95 +173,89 @@
         <button id="next">下一页</button>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/lunr@2.3.9/lunr.min.js"></script>
-
     <script type="module">
         import { parsePostFrontmatter } from './utils/parser.js'
         import { postsList } from './posts-list.js'
 
-        const POSTS_PER_PAGE = 5
-        let currentPage = 1
-        let allPosts = []
-        let filteredPosts = []
-        let searchIndex = null
+        const POSTS_PER_PAGE = 5;
+        let currentPage = 1;
+        let allPosts = []; // 存储完整的原始文章数据
+        let filteredPosts = []; // 存储过滤后的结果
 
-        // 初始化搜索
-        function initSearch(posts) {
-            searchIndex = lunr(function () {
-                this.field('title', { boost: 10 })
-                this.field('category', { boost: 5 })
-                this.field('tags', { boost: 8 })
-                this.field('excerpt', { boost: 3 })
-                this.ref('file')
+        // 🌟 核心修复：通用的搜索匹配函数
+        function matchesSearch(post, query) {
+            if (!query) return true;
 
-                posts.forEach(p => {
-                    this.add({
-                        title: p.title || '',
-                        category: p.category || '',
-                        tags: (p.tags || []).join(' '),
-                        excerpt: p.excerpt || '',
-                        file: p.file
-                    })
-                })
-            })
-        }
+            const keywords = query.toLowerCase().split(/\s+/); // 支持多关键词搜索
+            const title = (post.title || '').toLowerCase();
+            const category = (post.category || '').toLowerCase();
+            const excerpt = (post.excerpt || '').toLowerCase();
 
-        // 搜索逻辑
-        function performSearch(query) {
-            if (!query || !searchIndex) return []
+            // 处理标签：如果是数组直接取，否则假设是字符串
+            const tags = Array.isArray(post.tags) ? post.tags.join(' ').toLowerCase() : (post.tags || '').toLowerCase();
 
-            const results = searchIndex.search(query)
-            const fileList = results.map(r => r.ref)
-
-            return allPosts.filter(p => fileList.includes(p.file))
+            // 遍历所有关键词，只要命中一个字段即返回 true
+            return keywords.some(keyword => {
+                return title.includes(keyword) ||
+                    category.includes(keyword) ||
+                    tags.includes(keyword) ||
+                    excerpt.includes(keyword);
+            });
         }
 
         // 加载所有文章
         async function loadPosts() {
-            const posts = []
+            const posts = [];
             for (const item of postsList) {
                 try {
-                    const res = await fetch(`/posts/${item.file}`)
-                    if (!res.ok) continue
-                    const text = await res.text()
-                    const { data } = parsePostFrontmatter(text)
-                    posts.push({ ...data, file: item.file })
-                } catch (e) { }
+                    const res = await fetch(`/posts/${item.file}`);
+                    if (!res.ok) {
+                        console.warn(`跳过无法加载的文件: ${item.file}`);
+                        continue;
+                    }
+                    const text = await res.text();
+                    const { data } = parsePostFrontmatter(text);
+                    // 确保 file 字段存在，用于跳转
+                    posts.push({ ...data, file: item.file });
+                } catch (e) {
+                    console.error(`加载文章 ${item.file} 失败:`, e);
+                }
             }
 
-            allPosts = posts.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0))
-            filteredPosts = [...allPosts]
+            allPosts = posts.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+            filteredPosts = [...allPosts];
 
-            initSearch(allPosts)
-            render()
+            // 初始化渲染
+            render();
+            console.log(`✅ 成功加载 ${allPosts.length} 篇文章，搜索功能已就绪`);
         }
 
         // 渲染列表
         function render() {
-            const total = Math.ceil(filteredPosts.length / POSTS_PER_PAGE) || 1
-            const start = (currentPage - 1) * POSTS_PER_PAGE
-            const pageData = filteredPosts.slice(start, start + POSTS_PER_PAGE)
+            const total = Math.ceil(filteredPosts.length / POSTS_PER_PAGE) || 1;
+            const start = (currentPage - 1) * POSTS_PER_PAGE;
+            const pageData = filteredPosts.slice(start, start + POSTS_PER_PAGE);
 
-            document.getElementById('page-info').innerText = `第 ${currentPage} / ${total} 页`
-            document.getElementById('prev').disabled = currentPage <= 1
-            document.getElementById('next').disabled = currentPage >= total
+            document.getElementById('page-info').innerText = `第 ${currentPage} / ${total} 页`;
+            document.getElementById('prev').disabled = currentPage <= 1;
+            document.getElementById('next').disabled = currentPage >= total;
 
             if (filteredPosts.length === 0) {
-                document.getElementById('list').innerHTML = '<div class="empty">暂无文章</div>'
-                return
+                document.getElementById('list').innerHTML = '<div class="empty">暂无文章</div>';
+                return;
             }
 
-            const searchKeyword = document.getElementById('search-input').value.trim()
+            const searchKeyword = document.getElementById('search-input').value.trim();
 
             document.getElementById('list').innerHTML = pageData.map(p => {
-                let title = p.title
-                let excerpt = p.excerpt || ''
+                let title = p.title;
+                let excerpt = p.excerpt || '';
 
-                // 高亮匹配内容
+                // 高亮处理
                 if (searchKeyword) {
-                    const reg = new RegExp(`(${searchKeyword})`, 'gi')
-                    title = title.replace(reg, '<span class="highlight">$1</span>')
-                    excerpt = excerpt.replace(reg, '<span class="highlight">$1</span>')
+                    const reg = new RegExp(`(${searchKeyword})`, 'gi');
+                    title = title.replace(reg, '<span class="highlight">$1</span>');
+                    excerpt = excerpt.replace(reg, '<span class="highlight">$1</span>');
                 }
 
                 return `
@@ -272,32 +267,35 @@
                     ${p.tags?.map(t => `<span class="tag">${t}</span>`).join('') || ''}
                     <div class="excerpt">${excerpt}</div>
                 </div>
-            `
-            }).join('')
+            `;
+            }).join('');
         }
 
-        // 搜索输入事件
+        // 🔍 搜索事件监听
         document.getElementById('search-input').addEventListener('input', function (e) {
-            const keyword = e.target.value.trim()
+            const keyword = e.target.value.trim();
 
             if (keyword === '') {
-                filteredPosts = [...allPosts]
-                document.getElementById('search-hint').innerText = ''
+                // 清空搜索，恢复原始数据
+                filteredPosts = [...allPosts];
+                document.getElementById('search-hint').innerText = '';
             } else {
-                filteredPosts = performSearch(keyword)
-                document.getElementById('search-hint').innerText = `找到 ${filteredPosts.length} 条结果`
+                // 执行过滤
+                filteredPosts = allPosts.filter(post => matchesSearch(post, keyword));
+                document.getElementById('search-hint').innerText = `找到 ${filteredPosts.length} 条结果`;
             }
 
-            currentPage = 1
-            render()
-        })
+            // 搜索后重置到第一页
+            currentPage = 1;
+            render();
+        });
 
         // 分页事件
-        document.getElementById('prev').onclick = () => { currentPage--; render() }
-        document.getElementById('next').onclick = () => { currentPage++; render() }
+        document.getElementById('prev').onclick = () => { currentPage--; render(); };
+        document.getElementById('next').onclick = () => { currentPage++; render(); };
 
         // 初始加载
-        loadPosts()
+        loadPosts();
     </script>
 </body>
 
