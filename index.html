@@ -161,7 +161,7 @@
 
     <!-- 搜索框 -->
     <div class="search-container">
-        <input id="search-input" placeholder="搜索标题、标签、摘要…" autocomplete="off" />
+        <input id="search-input" placeholder="搜索标题、正文、标签…" autocomplete="off" />
         <div class="search-hint" id="search-hint"></div>
     </div>
 
@@ -173,37 +173,42 @@
         <button id="next">下一页</button>
     </div>
 
+    <!-- 移除了 Lunr.js 的 CDN 引入，因为现在我们直接遍历 -->
+
     <script type="module">
         import { parsePostFrontmatter } from './utils/parser.js'
         import { postsList } from './posts-list.js'
 
         const POSTS_PER_PAGE = 5;
         let currentPage = 1;
-        let allPosts = []; // 存储完整的原始文章数据
+        let allPosts = []; // 存储完整的原始文章数据（包含正文内容）
         let filteredPosts = []; // 存储过滤后的结果
 
-        // 🌟 核心修复：通用的搜索匹配函数
+        // 🌟 核心升级：支持搜索正文内容的匹配函数
         function matchesSearch(post, query) {
             if (!query) return true;
 
-            const keywords = query.toLowerCase().split(/\s+/); // 支持多关键词搜索
+            const keywords = query.toLowerCase().split(/\s+/).filter(k => k); // 去除空关键词
+            if (keywords.length === 0) return true;
+
+            // 提取要搜索的字段：标题、分类、标签、摘要、正文
             const title = (post.title || '').toLowerCase();
             const category = (post.category || '').toLowerCase();
             const excerpt = (post.excerpt || '').toLowerCase();
-
-            // 处理标签：如果是数组直接取，否则假设是字符串
             const tags = Array.isArray(post.tags) ? post.tags.join(' ').toLowerCase() : (post.tags || '').toLowerCase();
+            const content = (post.content || '').toLowerCase(); // 👈 搜索正文内容
 
-            // 遍历所有关键词，只要命中一个字段即返回 true
+            // 遍历所有关键词，只要命中其中一个字段即返回 true
             return keywords.some(keyword => {
                 return title.includes(keyword) ||
                     category.includes(keyword) ||
                     tags.includes(keyword) ||
-                    excerpt.includes(keyword);
+                    excerpt.includes(keyword) ||
+                    content.includes(keyword); // 👈 包含正文搜索
             });
         }
 
-        // 加载所有文章
+        // 加载所有文章（现在会获取正文内容用于搜索）
         async function loadPosts() {
             const posts = [];
             for (const item of postsList) {
@@ -214,9 +219,13 @@
                         continue;
                     }
                     const text = await res.text();
-                    const { data } = parsePostFrontmatter(text);
-                    // 确保 file 字段存在，用于跳转
-                    posts.push({ ...data, file: item.file });
+                    const { data, content } = parsePostFrontmatter(text);
+                    // 存储数据，同时把正文内容也存进去用于搜索
+                    posts.push({
+                        ...data,
+                        file: item.file,
+                        content: content // 👈 关键：将正文内容存入对象，供 matchesSearch 使用
+                    });
                 } catch (e) {
                     console.error(`加载文章 ${item.file} 失败:`, e);
                 }
@@ -225,9 +234,8 @@
             allPosts = posts.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
             filteredPosts = [...allPosts];
 
-            // 初始化渲染
             render();
-            console.log(`✅ 成功加载 ${allPosts.length} 篇文章，搜索功能已就绪`);
+            console.log(`✅ 加载完成：共 ${allPosts.length} 篇文章，支持正文搜索`);
         }
 
         // 渲染列表
@@ -255,6 +263,7 @@
                 if (searchKeyword) {
                     const reg = new RegExp(`(${searchKeyword})`, 'gi');
                     title = title.replace(reg, '<span class="highlight">$1</span>');
+                    // 摘要也高亮
                     excerpt = excerpt.replace(reg, '<span class="highlight">$1</span>');
                 }
 
@@ -276,16 +285,13 @@
             const keyword = e.target.value.trim();
 
             if (keyword === '') {
-                // 清空搜索，恢复原始数据
                 filteredPosts = [...allPosts];
                 document.getElementById('search-hint').innerText = '';
             } else {
-                // 执行过滤
                 filteredPosts = allPosts.filter(post => matchesSearch(post, keyword));
                 document.getElementById('search-hint').innerText = `找到 ${filteredPosts.length} 条结果`;
             }
 
-            // 搜索后重置到第一页
             currentPage = 1;
             render();
         });
