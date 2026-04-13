@@ -9,7 +9,7 @@ export const postsList = [
     },
     {
         file: "boke1.md",           // 必须和 posts/ 里的文件名完全一致
-        title: "我的第一篇测试文章",
+        title: "模拟博客",
         date: "2026-04-13",
         category: "技术",
         tags: ["前端", "博客"],
